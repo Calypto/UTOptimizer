@@ -34,7 +34,7 @@ If MaxClientFrameRate<120 or 200, set to 240
 Checks if a player's FPS cap is below 120 or is 200, and sets it to 240 instead. Even on 60Hz displays, higher FPS results in lower latency and higher smoothness because of the higher likelihood of more recent frames being sent to the display. This will create a better experience for those that have not adjusted their FPS limit. Takes effect after a game restart or returning to the main menu and reconnecting.
 
 ### bDeleteServerCache
-Deletes [GUI2K4.UT2k4ServerBrowser] ServerCache array which is bugged and spams entries in User.ini, resulting in stuttering due to the ridiculous file size as a result of the spam. See also: https://github.com/OldUnreal/UT2004Patches/issues/159
+Deletes [GUI2K4.UT2k4ServerBrowser] ServerCache array which is bugged and spams entries in User.ini, resulting in stuttering due to the ridiculous file size as a result of the spam. See also: https://github.com/OldUnreal/UT2004Patches/issues/159  
 Takes effect instantly.
 
 ### bFixMasterServer
