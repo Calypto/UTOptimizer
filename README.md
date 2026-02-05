@@ -19,7 +19,7 @@ Sets CacheSizeMegs=1. Some players like to set this higher than the default of 3
 Disables ReduceMouseLag, which counterintuitively increases input lag on modern systems. This will help level the playing field and create a better experience for those that have ReduceMouseLag enabled. Takes effect instantly.
 
 ### bFixNetSettings
-KeepAliveTime=0.2, Max(Internet)ClientRate=1000000, bDynamicNetSpeed=False, ConfiguredInternetSpeed=1000000, ConfiguredLanSpeed=1000000, Netspeed 1000000, MaxSimultaneousPings=200, bStandardServersOnly=False
+KeepAliveTime=0.2, Max(Internet)ClientRate=100000000, bDynamicNetSpeed=False, ConfiguredInternetSpeed=100000000, ConfiguredLanSpeed=100000000, Netspeed 100000000, MaxSimultaneousPings=50,  bStandardServersOnly=False
 
 Sets network settings to optimal values. Also fixes the server browser when netspeed is changed. Takes effect instantly.
 
@@ -35,9 +35,10 @@ Checks if a player's FPS cap is below 120 or is 200, and sets it to 240 instead.
 
 ### bDeleteServerCache
 Deletes [GUI2K4.UT2k4ServerBrowser] ServerCache array which is bugged and spams entries in User.ini, resulting in stuttering due to the ridiculous file size as a result of the spam. See also: https://github.com/OldUnreal/UT2004Patches/issues/159
+Takes effect instantly.
 
 ### bFixMasterServer
-Sets the master server for the players. Options are:
+Sets the master server for players. Options are:
 
     333networks
     Errorist
