@@ -1,7 +1,7 @@
 # UTOptimizer
 UT2004 mutator which fixes some issues for clients.
 
-![WebAdmin Screenshot](https://github.com/Zenakuten/UTOptimizer/blob/main/UTOptimizerPreview.PNG?raw=true)
+![WebAdmin Screenshot](UTOptimizerPreview.PNG?raw=true)
 
 Options:
 
