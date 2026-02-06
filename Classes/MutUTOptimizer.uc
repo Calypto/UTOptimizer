@@ -25,6 +25,7 @@ var config bool bFixRenderer;
 var config bool bFix90FPS;
 var config bool bFixMasterServer;
 var config EMasterServer SelectedMasterServer;
+var config bool bDeleteServerCache;
 var config bool bDebugClient;
 
 var bool bModified;
@@ -32,7 +33,7 @@ var bool bModified;
 replication
 {
 	reliable if (ROLE == ROLE_Authority)
-		bCollectGarbage, bSaveCache, bFixCacheSizeMegs, bFixReduceMouseLag, bFixNetSettings, bFixRenderer, bFix90FPS, bFixMasterServer, SelectedMasterServer, bDebugClient;
+		bCollectGarbage, bSaveCache, bFixCacheSizeMegs, bFixReduceMouseLag, bFixNetSettings, bFixRenderer, bFix90FPS, bFixMasterServer, SelectedMasterServer, bDeleteServerCache, bDebugClient;
 }
 
 static function FillPlayInfo(PlayInfo PlayInfo)
@@ -48,6 +49,7 @@ static function FillPlayInfo(PlayInfo PlayInfo)
 	PlayInfo.AddSetting("UTOptimizer", "bFix90FPS", "Fix 90FPS limit", 0, 1, "Check");
 	PlayInfo.AddSetting("UTOptimizer", "bFixMasterServer", "Fix player's master server", 0, 1, "Check");
 	PlayInfo.AddSetting("UTOptimizer", "SelectedMasterServer", "Master server(s) to use:", 0, 1, "Select", "MS_333networks;333networks;MS_Errorist;Errorist;MS_333networksAndErrorist;333networks+Errorist;MS_OpenSpy;OpenSpy");
+	PlayInfo.AddSetting("UTOptimizer", "bDeleteServerCache", "Delete server browser cache", 0, 1, "Check");
 	PlayInfo.AddSetting("UTOptimizer", "bDebugClient", "Message the client if config has been modified", 0, 1, "Check");
 }
 
@@ -59,11 +61,12 @@ static event string GetDescriptionText(string PropName)
 		case "bSaveCache": return "PurgeCacheDays=0; prevent redownloading every 30 days";
 		case "bFixCacheSizeMegs": return "CacheSizeMegs=1; reduce OOM crashes";
 		case "bFixReduceMouseLag": return "ReduceMouseLag=False; reduces input latency at same FPS while also increasing FPS";
-		case "bFixNetSettings": return "KeepAliveTime=0.2, Max(Internet)ClientRate=1000000, bDynamicNetSpeed=False, Netspeed 1000000, MaxSimultaneousPings=200, bStandardServersOnly=False";
+		case "bFixNetSettings": return "KeepAliveTime=0.2, Max(Internet)ClientRate=100000000, bDynamicNetSpeed=False, Netspeed 100000000, MaxSimultaneousPings=50, bStandardServersOnly=False";
 		case "bFixRenderer": return "DesiredRefreshRate=0, OverrideDesktopRefreshRate=False, UseVSync=False, UseBVO=True for >30% higher CPU FPS in OpenGL";
 		case "bFix90FPS": return "If MaxClientFrameRate<120 or is 200, set to 240";
 		case "bFixMasterServer": return "If a player has at least one Epic master server, replace with the following from the list.";
 		case "SelectedMasterServer": return "333networks/Errorist lower ping to EU, OpenSpy lower ping to NA";
+		case "bDeleteServerCache": return "Deletes GUI2K4.UT2k4ServerBrowser ServerCache";
 		case "bDebugClient": return "Message the client if config has been modified";
 	}
 
@@ -114,7 +117,7 @@ simulated function Tick(float dt)
 	local int i;
     local string RenderDevice;
 
-	super.Tick(dt);
+    super.Tick(dt);
 	if(level.NetMode != NM_DedicatedServer)
 	{
 		bModified = false;
@@ -146,23 +149,28 @@ simulated function Tick(float dt)
 			if(bFixNetSettings)
 			{
 				SetProperty(PC, "IpDrv.TcpNetDriver", "KeepAliveTime", PT_float, "0.2");
-				SetProperty(PC, "IpDrv.TcpNetDriver", "MaxClientRate", PT_int, "1000000");
-				SetProperty(PC, "IpDrv.TcpNetDriver", "MaxInternetClientRate", PT_int, "1000000");
+				SetProperty(PC, "IpDrv.TcpNetDriver", "MaxClientRate", PT_int, "100000000");
+				SetProperty(PC, "IpDrv.TcpNetDriver", "MaxInternetClientRate", PT_int, "100000000");
 				if(class'Engine.PlayerController'.default.bDynamicNetSpeed)
 				{
 					class'Engine.PlayerController'.default.bDynamicNetSpeed = False;
 					class'Engine.PlayerController'.static.StaticSaveConfig();
 					bModified=true;
 				}
-				if(class'Engine.Player'.default.ConfiguredInternetSpeed != 1000000)
+				if(class'Engine.Player'.default.ConfiguredInternetSpeed != 100000000)
 				{
-					PC.ConsoleCommand("Netspeed 1000000");
+					PC.ConsoleCommand("Netspeed 100000000");
 					bModified=true;
 				}
-				SetProperty(PC, "Engine.Player", "ConfiguredInternetSpeed", PT_int, "1000000");
-				SetProperty(PC, "Engine.Player", "ConfiguredLanSpeed", PT_int, "1000000");
-				SetProperty(PC, "XInterface.GUIController", "MaxSimultaneousPings", PT_int, "200");
+				SetProperty(PC, "Engine.Player", "ConfiguredInternetSpeed", PT_int, "100000000");
+				SetProperty(PC, "Engine.Player", "ConfiguredLanSpeed", PT_int, "100000000");
+				SetProperty(PC, "XInterface.GUIController", "MaxSimultaneousPings", PT_int, "50");
 				SetProperty(PC, "GUI2K4.UT2k4ServerBrowser", "bStandardServersOnly", PT_bool, "False");
+			}
+			if(bDeleteServerCache)
+			{
+				PC.ConsoleCommand("set GUI2K4.UT2k4ServerBrowser ServerCache ()");
+				bModified=true;
 			}
 			if(bFixRenderer)
 			{
@@ -264,7 +272,7 @@ simulated function Tick(float dt)
 					Log("Warning: Default Epic master server not found. Skipping master server modification.");
 				}
 
-				if(bModified)
+				if(bModified && bDebugClient)
 					PC.ClientMessage("Settings have been optimized!");
 			}
 			Disable('Tick');
@@ -291,6 +299,7 @@ defaultproperties
 	bFix90FPS=true
 	bFixMasterServer=true
 	SelectedMasterServer=MS_OpenSpy
+	bDeleteServerCache=true
 
 	bDebugClient=false
 }
